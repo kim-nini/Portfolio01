@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper	namespace="com.ezen.grrreung.domain.board.mapper.NoticeMapper">
+<!--게시글등록-->
+	<insert id="create" parameterType="Notice">
+		INSERT INTO notice (
+			noti_title,
+			noti_cont
+		) VALUES (
+					 #{notiTitle},
+					 #{notiCont}
+				 )
+	</insert>
+
+<!-- 전체리스트 및 검색 리스트-->
+	<select id="postList" parameterType="RequestParams" resultType="Notice">
+		SELECT
+			noti_code,
+			noti_title,
+			noti_cont,
+			noti_auth,
+			DATE_FORMAT(noti_date, '%Y-%m-%d %H:%i:%s') as noti_date
+		FROM
+			notice
+			<where>
+				<if test="search != null">
+					AND (noti_title LIKE CONCAT('%', #{search}, '%') OR noti_date LIKE CONCAT('%', #{search}, '%'))
+				</if>
+			</where>
+			ORDER BY
+			noti_code DESC
+			LIMIT #{elementSize} OFFSET #{offset}
+	</select>
+
+<!--전체리스트 행갯수-->
+	<select id="postListCount" parameterType="RequestParams" resultType="int">
+		SELECT COUNT(*) count
+		FROM notice
+		<where>
+			<if test="search != null">
+				AND (noti_title LIKE CONCAT('%', #{search}, '%') OR noti_date LIKE CONCAT('%', #{search}, '%'))
+			</if>
+		</where>
+		order by noti_code DESC
+	</select>
+
+<!--	상세보기-->
+	<select id="findByBno" parameterType="int" resultType="Notice">
+		SELECT noti_code,
+			   noti_title,
+			   noti_cont,
+			   noti_auth,
+			   DATE_FORMAT(noti_date, '%Y-%m-%d %H:%i:%s') as noti_date
+		FROM notice
+		WHERE noti_code = #{notiCode}
+	</select>
+
+	<!-- 게시글 수정 -->
+	<update id="updateByBno" parameterType="Notice">
+		UPDATE notice
+		SET noti_title = #{notiTitle},
+			noti_cont = #{notiCont}
+		WHERE noti_code = #{notiCode}
+	</update>
+
+	<!-- 게시글 삭제 -->
+	<delete id="deletePost" parameterType="int">
+		DELETE FROM notice
+		WHERE noti_code = #{notiCode}
+	</delete>
+
+
+	
+</mapper>
+
